@@ -2,12 +2,10 @@ import Chatbox from "./components/Chatbox";
 import ChatRoom from "./components/ChatRoom";
 
 function App() {
-  
-
     return (
-        <div className= "bg-gunmetal-800 pt-12 px-5 min-h-screen">
-          <ChatRoom />
-          <Chatbox />
+        <div className="bg-gunmetal-800 pt-12 px-5 min-h-screen">
+            <ChatRoom />
+            <Chatbox />
         </div>
     );
 }
