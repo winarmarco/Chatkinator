@@ -1,13 +1,30 @@
-import Chatbox from "./components/Chatbox";
-import ChatRoom from "./components/ChatRoom";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import AuthPage from "./pages/AuthPage";
+import ChatPage from "./pages/ChatPage";
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <ChatPage />,
+        //   errorElement: <ErrorPage />,
+        children: [],
+    },
+    {
+        path: "/login",
+        element: <AuthPage mode="login"/>,
+    },
+    {
+        path: "/signup",
+        element: <AuthPage mode="signup"/>,
+    },
+    {
+        path: "/chat/:chatId",
+        element: <ChatPage />,
+    },
+]);
 
 function App() {
-    return (
-        <div className="bg-gunmetal-800 pt-12 px-5 min-h-screen">
-            <ChatRoom />
-            <Chatbox />
-        </div>
-    );
+    return <RouterProvider router={router} />;
 }
 
 export default App;

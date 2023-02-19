@@ -7,7 +7,38 @@ import { v4 as uuid } from "uuid";
 import TextareaAutosize from "react-textarea-autosize";
 
 const fetchApi = async (prompt) => {
-    return "Hello";
+
+    const data = {
+        prompt: prompt,
+    };
+
+    var formBody = [];
+    for (var property in data) {
+        var encodedKey = encodeURIComponent(property);
+        var encodedValue = encodeURIComponent(data[property]);
+        formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+
+    const options = {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        },
+        body: formBody,
+    };
+
+    try {
+        const response = await fetch(
+            "http://localhost:8080/text-completions",
+            options
+        );
+        const data = await response.json();
+
+        return data["response"];
+    } catch (errors) {
+        throw errors;
+    }
 };
 
 const Chatbox = () => {
