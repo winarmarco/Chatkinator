@@ -41,7 +41,7 @@ const fetchApi = async (prompt) => {
     }
 };
 
-const Chatbox = () => {
+const Chatbox = (props) => {
     const dispatch = useDispatch();
     const isFetching = useSelector((state) => state.ui.isFetching);
     const [prompt, setPrompt] = useState("");
@@ -143,7 +143,7 @@ const Chatbox = () => {
     );
 
     return (
-        <div className="bg-gunmetal-500 fixed bottom-0 left-0 right-0 py-4 drop-shadow-[0_-4px_4px_rgba(0,0,0,0.25)] px-5">
+        <div className='bg-gunmetal-500 py-4 drop-shadow-[0_-4px_4px_rgba(0,0,0,0.25)] px-5'>
             {isFetching ? LoadingContent : FormContent}
         </div>
     );

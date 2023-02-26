@@ -8,8 +8,13 @@ module.exports = {
       colors: {
         "gunmetal-300": "#39374C",
         "gunmetal-500": "#2D2B3F",
-        "gunmetal-800": "#2C2A3E",
+        "gunmetal-600": "#2A2838",
+        "gunmetal-700": "#272632",
+        "gunmetal-750": "#31303E",
+        "gunmetal-800": "#292735",
+        "gunmetal-900": "#212126",
         "silver": "#8C8A99",
+        "silver-300": "#55545C",
         "beer": "#F9991A",
         "carmine": "#EC4748",
         "sand": "#FAF4F9",
@@ -17,5 +22,7 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
 }

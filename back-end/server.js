@@ -3,26 +3,33 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
+const authRouter = require("./routes/authentication");
+
+mongoose.set('strictQuery', true);
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 const app = express();
 
-var corsOptions = {
+const corsOptions = {
     origin: 'http://localhost:3000',
     optionsSuccessStatus: 200
 }
 
 app.use(cors(corsOptions));
-
+// app.use((req, res, next) => {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+//     next();
+// });
 
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
 
-app.post("/", async (req, res) => {
-    console.log(req.body);
-    res.send(req.body);
-});
+app.use('/', authRouter);
 
 app.post("/text-completions", async (req, res) => {
     const prompt = req.body.prompt;

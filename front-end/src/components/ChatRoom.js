@@ -17,7 +17,7 @@ const ChatRoom = () => {
     }, [chats]);
 
     return (
-        <div className="flex flex-col gap-y-10 pb-32 max-w-7xl mx-auto">
+        <div className="flex flex-col gap-y-10 max-w-7xl mx-auto">
             {chats.map((data) => {
                 return (
                     <ChatBubble
