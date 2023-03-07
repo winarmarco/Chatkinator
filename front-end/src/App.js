@@ -1,7 +1,8 @@
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import AuthPage, {action as authAction} from "./pages/AuthPage";
+import AuthPage from "./pages/AuthPage";
 import Private from "./util/Private";
 import ChatPage from "./pages/ChatPage";
+import Clear from "./pages/Clear";
 
 const router = createBrowserRouter([
   {
@@ -12,22 +13,38 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    action: authAction,
     element: <AuthPage mode="login" />,
   },
   {
     path: "/signup",
-    action: authAction,
     element: <AuthPage mode="signup" />,
+  },
+  {
+    path: "/chat",
+    element: (
+      <Private 
+        component={<ChatPage />}
+      />
+    ),
   },
   {
     path: "/chat/:chatId",
     element: (
-      <Private>
-        <ChatPage />
-      </Private>
+      <Private 
+        component={<ChatPage />}
+      />
     ),
   },
+  {
+    path: "/clear",
+    element: <Clear />,
+  },
+  {
+    path: '/logout',
+    loader: () => {
+      
+    }
+  }
 ]);
 
 function App() {

@@ -1,26 +1,58 @@
-import React from 'react'
-import { useSelector } from "react-redux";
-// import { redirect, useNavigate, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, redirect } from 'react-router-dom';
+import { authActions } from '../store/auth-slice';
 
 
 const Private = (props) => {
   const authState = useSelector((store) => {
-    console.log(store);
     return store.auth;
   });
-  // const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = authState.token;
+  const [isLoading, setIsLoading] = useState(false);
 
-  // console.log("asddsadas");
+  useEffect(() => {
+    const checkAuth = async () => {
+      setIsLoading(true);
+      const serverURL = process.env.REACT_APP_API_URL;
+  
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "Authorization": `Bearer ${token}`,
+        },
+      };
+  
+      try {
+        const response = await fetch(`${serverURL}/check-auth`, options);
+        
+        if (!response.ok) {
+          throw new Error("Not Authenticated");
+        }
+  
+      } catch (err) {
+        dispatch(authActions.logout());
+        return redirect('/login');
+      }
+      setIsLoading(false);
+    }
 
-  console.log(authState.token);
+    checkAuth();
+  }, [token, dispatch]);
 
-  // if (!authState.token) {
-  //   return <Navigate to="/login" />
-  // }  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!token) {
+    return <Navigate to='/login' />
+  }
 
   return (
     <>
-      {props.children}
+      {props.component}
     </>
   )
 }

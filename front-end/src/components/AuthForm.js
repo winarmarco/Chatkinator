@@ -1,43 +1,54 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Button from "./Button";
 import Input from "./Input";
-import {Link, useLocation, json, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import {useState} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { authActions } from "../store/auth-slice";
+import {useDispatch} from "react-redux";
+import {authActions} from "../store/auth-slice";
+import {chatActions} from "../store/chat-slice";
 
 const AuthForm = (props) => {
   const mode = props.mode;
-  const title = mode === "signup" ? "Create an account" : "Welcome Back!";
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const auth = useSelector((store) => store.auth);
-  
-  const defaultValue = props.defaultValue;
-  
-  const initFormData = {
-    username: defaultValue && (defaultValue.username || ''),
-    email: defaultValue && (defaultValue.email || ''),
-    password: defaultValue && (defaultValue.password || ''),
-    confirmPassword: defaultValue && (defaultValue.confirmPassword || ''),
-  }
 
+  const title = (mode === "signup") ? "Create an account" : "Welcome Back!";
+  const initFormData = {
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  };
+
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState(initFormData);
 
-  const submitHandler =  async (event) => {
+
+  useEffect(() => {
+    setError('');
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  }, [mode]);
+
+
+  const submitHandler = async (event) => {
     event.preventDefault();
-    
+
     const pathname = location.pathname;
     const serverURL = process.env.REACT_APP_API_URL;
     const fetchURL = serverURL + `${pathname}`;
-    
+
     const data = {
-        email: formData['email'],
-        username: formData['username'],
-        password: formData['password'],
-        confirmPassword: formData['confirmPassword'],
-    }
+      email: formData["email"],
+      username: formData["username"],
+      password: formData["password"],
+      confirmPassword: formData["confirmPassword"],
+    };
 
     const response = await fetch(fetchURL, {
       method: "POST",
@@ -46,37 +57,27 @@ const AuthForm = (props) => {
       },
       body: JSON.stringify(data),
     });
-  
-    console.log(response);
-  
-    if (response.status === 422 || response.status === 401) {
-      return response;
-    }
-  
-    if (!response.ok) {
-      throw json(
-        {
-          message: `Could not ${
-            pathname === "signup" ? "register" : "login"
-          } user`,
-        },
-        {
-          status: 500,
-        }
-      );
-    }
-  
     const resData = await response.json();
-    const token = resData.token;
-    dispatch(authActions.signJWT('asdasdas'));
-    
-    return navigate('/');
-  }
 
-  const clickHandler = () => {
-    console.log("clicked");
-    dispatch(authActions.signJWT('asdasdas'));
-  }  
+    if (!response.ok) {
+      
+      if (resData.cause) {
+        const errorsMessage = {};
+        for (const error of resData.cause) {
+          const {field, message} = error;
+          errorsMessage[field] = message;
+        }
+        setError(errorsMessage);
+      }
+
+      return;
+    }
+
+    const token = resData.token;
+    dispatch(authActions.signJWT({token}));
+    dispatch(chatActions.clearChat());
+    return navigate("/chat");
+  };
 
   return (
     <form
@@ -85,15 +86,15 @@ const AuthForm = (props) => {
       autoComplete="off"
       onSubmit={submitHandler}
     >
-      <h1 className="text-4xl text-sand mb-4 font-semibold">{title}</h1>
-
+    <h1 className="text-4xl text-sand mb-4 font-semibold">{title}</h1>
+  
       <Input
         label="Username"
         type="text"
         id="username"
         placeholder="John Doe"
+        error={error["username"]}
         value={formData.username}
-        defaultValue={formData.username}
         onInput={(event) => {
           setFormData((prevState) => {
             return {
@@ -112,7 +113,7 @@ const AuthForm = (props) => {
           id="email"
           placeholder="abcd@yahoo.com"
           value={formData.email}
-          defaultValue={formData.email}
+          error={error["email"]}
           onInput={(event) => {
             setFormData((prevState) => {
               return {
@@ -130,9 +131,9 @@ const AuthForm = (props) => {
         type="password"
         id="password"
         placeholder="Password"
-        message="Must be 8 characters long."
-        value={initFormData.password}
-        defaultValue={initFormData.password}
+        error={error["password"]}
+        message={(mode === "signup") && "Must be 8 characters long."}
+        value={formData.password}
         onInput={(event) => {
           setFormData((prevState) => {
             return {
@@ -150,9 +151,9 @@ const AuthForm = (props) => {
           type="password"
           id="confirm-password"
           placeholder="Confirm Password"
+          error={error["confirmPassword"]}
           message="Must be 8 characters long."
-          value={initFormData.confirmPassword}
-          defaultValue={initFormData.confirmPassword}
+          value={formData.confirmPassword}
           onInput={(event) => {
             setFormData((prevState) => {
               return {

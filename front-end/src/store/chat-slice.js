@@ -7,6 +7,12 @@ const chatSlice = createSlice({
         pushChat(state, actions) {
             state.push(actions.payload);
         },
+        clearChat(state) {
+            return [];
+        },
+        setChat(state, actions) {
+            return actions.payload.chat;
+        } 
     },
 });
 

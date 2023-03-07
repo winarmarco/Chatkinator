@@ -1,49 +1,15 @@
 import { AiOutlineLoading3Quarters, AiOutlineSend } from "react-icons/ai";
 import { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { chatActions } from "../store/chat-slice";
-import { uiActions } from "../store/ui-slice";
-import { v4 as uuid } from "uuid";
+import { useDispatch, useSelector } from "react-redux"
 import TextareaAutosize from "react-textarea-autosize";
+import { fetchResponseAction } from "../store/chatActions";
 
-const fetchApi = async (prompt) => {
-
-    const data = {
-        prompt: prompt,
-    };
-
-    var formBody = [];
-    for (var property in data) {
-        var encodedKey = encodeURIComponent(property);
-        var encodedValue = encodeURIComponent(data[property]);
-        formBody.push(encodedKey + "=" + encodedValue);
-    }
-    formBody = formBody.join("&");
-
-    const options = {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        },
-        body: formBody,
-    };
-
-    try {
-        const response = await fetch(
-            "http://localhost:8080/text-completions",
-            options
-        );
-        const data = await response.json();
-
-        return data["response"];
-    } catch (errors) {
-        throw errors;
-    }
-};
-
-const Chatbox = (props) => {
+const Chatbox = () => {
     const dispatch = useDispatch();
     const isFetching = useSelector((state) => state.ui.isFetching);
+    const selectedChat = useSelector((state) => state.chats.selectedChat);
+    const chatId = selectedChat && selectedChat._id;
+    const token = useSelector((state) => state.auth.token);
     const [prompt, setPrompt] = useState("");
     const inputRef = useRef(null);
 
@@ -73,36 +39,10 @@ const Chatbox = (props) => {
         setPrompt(inputtedValue);
     };
 
-    const submitHandler = async (event) => {
+
+    const submitHandler = (event) => {
         event.preventDefault();
-
-        const userMessageId = uuid();
-
-        dispatch(
-            chatActions.pushChat({
-                id: userMessageId,
-                type: "user",
-                message: prompt,
-            })
-        );
-        dispatch(uiActions.toggleFetch());
-
-        try {
-            const botResponse = await fetchApi(prompt);
-            const botResponseId = uuid();
-
-            dispatch(
-                chatActions.pushChat({
-                    id: botResponseId,
-                    type: "bot",
-                    message: botResponse.trim(),
-                })
-            );
-
-            dispatch(uiActions.toggleFetch());
-        } catch (errors) {
-            console.log("Something went wrong please try again later");
-        }
+        dispatch(fetchResponseAction(prompt, token, chatId))
     };
 
     const LoadingContent = (

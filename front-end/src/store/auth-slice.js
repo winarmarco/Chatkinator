@@ -1,19 +1,13 @@
 import {createSlice} from "@reduxjs/toolkit";
 
-const initState = {
-  token: null,
-};
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    token: undefined
+    token: null,
   },
   reducers: {
     signJWT(state, actions) {
-      console.log(actions.payload.token);
-      state.token = 'asdasdas'
-      console.log(state.token)
+      state.token = actions.payload.token;
     },
     logout(state, actions) {
       state.token = null;

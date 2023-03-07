@@ -7,9 +7,11 @@ const ChatRoom = () => {
     const chats = useSelector((store) => store.chat);
 
     const scrollToBottom = () => {
-        messageEndRef.current.scrollIntoView({
-            behavior: "smooth",
-        });
+        if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView({
+                behavior: "smooth",
+            });
+        }
     };
 
     useEffect(() => {
@@ -21,8 +23,8 @@ const ChatRoom = () => {
             {chats.map((data) => {
                 return (
                     <ChatBubble
-                        key={data.id}
-                        type={data.type}
+                        key={data._id}
+                        sentBy={data.sentBy}
                         message={data.message}
                     />
                 );

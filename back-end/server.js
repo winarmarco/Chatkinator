@@ -4,17 +4,19 @@ const axios = require("axios");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const {checkAuth} = require("./util/middleware");
 
 const authRouter = require("./routes/authentication");
+const chatRouter = require("./routes/chat");
 
-mongoose.set('strictQuery', true);
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
+mongoose.set("strictQuery", true);
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
 const app = express();
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200
-}
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: 200,
+};
 
 app.use(cors(corsOptions));
 // app.use((req, res, next) => {
@@ -24,55 +26,55 @@ app.use(cors(corsOptions));
 //     next();
 // });
 
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(bodyParser.json());
 
-app.use('/', authRouter);
 
-app.post("/text-completions", async (req, res) => {
-    const prompt = req.body.prompt;
+app.use("/", authRouter);
+app.use("/chat", checkAuth, chatRouter);
 
-    console.log("prompt: ", prompt);
 
-    const APIKEY = process.env.OPENAPI_KEY;
-    const body = {
-        model: "text-davinci-003",
-        prompt: prompt,
-        temperature: 1,
-        max_tokens: 2048,
-    };
+// Handle logic error
+app.use((error, req, res, next) => {
+  const status = error.status;
+  const message = error.message;
+  const cause = error.cause;
+  const requiredField = error.requiredField;
 
-    const options = {
-        headers: {
-            Authorization: `Bearer ${APIKEY}`,
-            "Content-Type": "application/json",
-        },
-    };
+  if (status && message) {
+    return res.status(status).json({message, requiredField, cause});
+  }
 
-    try {
-        const response = await axios.post(
-            "https://api.openai.com/v1/completions",
-            body,
-            options
-        );
-        const data = response.data;
+  next(error);
+});
 
-        console.log(data.choices[0].text);
+// Handle mongoose error
+app.use((error, req, res, next) => {
+  const modelNameString = error.message.split(" ").at(-1);
+  const modelName = modelNameString.replace(/\"/g, '');
+  console.log(modelName)
 
-        res.json({
-            response: data.choices[0].text
-        });
-    } catch (error) {
-        console.log(error);
-        res.json({
-            reponse: error.message
-        });
-    }
+  if (modelName === "User") {
+    res.status(401).json({message: "Unauthorized user"});
+  }
+
+  if ((error.name = "ValidationError")) {
+    return res.status(400).json({message: error.message});
+  }
+
+  if (error.name === "Cast Error") {
+    return res.status(400).json({message: "Invalid ID"});
+  }
+
+  console.error(error);
+  return res.status(500).json({message: "Something went wrong!"});
 });
 
 
 app.listen(8080, () => {
-    console.log("Server listening on port 8080");
+  console.log("Server listening on port 8080");
 });
