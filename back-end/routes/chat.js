@@ -3,7 +3,7 @@ const User = require("../model/UserSchema");
 const Chat = require("../model/ChatSchema");
 const router = express.Router();
 const {fetchResponse, getTitle} = require("../util/chat");
-const {NotFoundError, NotAuthError} = require("../util/errors");
+const {NotFoundError, NotAuthError, ValidationError} = require("../util/errors");
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res, next) => {
@@ -30,7 +30,7 @@ router.post("/", async (req, res, next) => {
   const prompt = req.body.prompt;
 
   if (!prompt) {
-    return next(ValidationError({message:"`prompt` field is required", requiredField: ["prompt"]}));
+    return next(new ValidationError({message:"`prompt` field is required", requiredField: ["prompt"]}));
   }
 
   try {
@@ -100,11 +100,12 @@ router.post("/:chatId", async (req, res, next) => {
   const prompt = req.body.prompt;
 
   if (!prompt) {
-    return next(ValidationError({message:"`prompt` field is required", requiredField: ["prompt"]}));
+    return next(new ValidationError({message:"`prompt` field is required", requiredField: ["prompt"]}));
   }
 
   try {
     const response = await fetchResponse(prompt);
+    
     const userPrompt = {
       message: prompt,
       sentBy: "user",

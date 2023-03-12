@@ -28,9 +28,15 @@ export const fetchResponse = async (prompt, token, chatId) => {
       options
     );
     const data = await response.json();
+
+
+    if (!response.ok) {
+      const errorMessage = data.message;
+      throw new Error(errorMessage);
+    }
     
     return data;
-  } catch (errors) {
-    throw new Error({message: errors.message});
+  } catch (error) {
+    throw new Error(JSON.stringify(error.message));
   }
 };

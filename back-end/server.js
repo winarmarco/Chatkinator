@@ -19,12 +19,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// app.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE');
-//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-//     next();
-// });
 
 app.use(
   bodyParser.urlencoded({
@@ -40,13 +34,14 @@ app.use("/chat", checkAuth, chatRouter);
 
 // Handle logic error
 app.use((error, req, res, next) => {
+  console.log(error);
   const status = error.status;
   const message = error.message;
   const cause = error.cause;
   const requiredField = error.requiredField;
 
   if (status && message) {
-    return res.status(status).json({message, requiredField, cause});
+    return  res.status(status).json({message, requiredField, cause});
   }
 
   next(error);

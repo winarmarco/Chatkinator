@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import Button from "./Button";
 import Input from "./Input";
 import {Link, useLocation, useNavigate} from "react-router-dom";
@@ -6,6 +6,7 @@ import {useState} from "react";
 import {useDispatch} from "react-redux";
 import {authActions} from "../store/auth-slice";
 import {chatActions} from "../store/chat-slice";
+import { toast } from "react-hot-toast";
 
 const AuthForm = (props) => {
   const mode = props.mode;
@@ -13,7 +14,7 @@ const AuthForm = (props) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const title = (mode === "signup") ? "Create an account" : "Welcome Back!";
+  const title = mode === "signup" ? "Create an account" : "Welcome Back!";
   const initFormData = {
     username: "",
     email: "",
@@ -21,12 +22,16 @@ const AuthForm = (props) => {
     confirmPassword: "",
   };
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initFormData);
   const [formData, setFormData] = useState(initFormData);
 
-
   useEffect(() => {
-    setError('');
+    setError({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
     setFormData({
       username: "",
       email: "",
@@ -34,7 +39,6 @@ const AuthForm = (props) => {
       confirmPassword: "",
     });
   }, [mode]);
-
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -49,34 +53,42 @@ const AuthForm = (props) => {
       password: formData["password"],
       confirmPassword: formData["confirmPassword"],
     };
+    
+    try {
+      const response = await fetch(fetchURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const resData = await response.json();      
 
-    const response = await fetch(fetchURL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    const resData = await response.json();
-
-    if (!response.ok) {
-      
-      if (resData.cause) {
-        const errorsMessage = {};
-        for (const error of resData.cause) {
-          const {field, message} = error;
-          errorsMessage[field] = message;
+      if (!response.ok) {
+        if (resData.cause) {
+          const errorsMessage = {};
+          for (const error of resData.cause) {
+            const {field, message} = error;
+            errorsMessage[field] = message;
+          }
+          throw new Error(JSON.stringify(errorsMessage));
         }
-        setError(errorsMessage);
+        throw new Error(JSON.stringify("Something went wrong!"));
       }
 
-      return;
-    }
+      const token = resData.token;
+      dispatch(authActions.signJWT({token}));
+      dispatch(chatActions.clearChat());
+      return navigate("/chat");
 
-    const token = resData.token;
-    dispatch(authActions.signJWT({token}));
-    dispatch(chatActions.clearChat());
-    return navigate("/chat");
+      
+    } catch (error) {
+      const errorObject = JSON.parse(error.message);
+      if (typeof errorObject === "string") {
+        toast.error(errorObject);
+      }
+      setError(errorObject);
+    }
   };
 
   return (
@@ -86,8 +98,8 @@ const AuthForm = (props) => {
       autoComplete="off"
       onSubmit={submitHandler}
     >
-    <h1 className="text-4xl text-sand mb-4 font-semibold">{title}</h1>
-  
+      <h1 className="text-4xl text-sand mb-4 font-semibold">{title}</h1>
+
       <Input
         label="Username"
         type="text"
@@ -132,7 +144,7 @@ const AuthForm = (props) => {
         id="password"
         placeholder="Password"
         error={error["password"]}
-        message={(mode === "signup") && "Must be 8 characters long."}
+        message={mode === "signup" && "Must be 8 characters long."}
         value={formData.password}
         onInput={(event) => {
           setFormData((prevState) => {
@@ -149,7 +161,7 @@ const AuthForm = (props) => {
         <Input
           label="Confirm Password"
           type="password"
-          id="confirm-password"
+          id="confirmPassword"
           placeholder="Confirm Password"
           error={error["confirmPassword"]}
           message="Must be 8 characters long."

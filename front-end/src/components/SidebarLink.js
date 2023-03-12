@@ -18,7 +18,7 @@ const SidebarLink = (props) => {
   }
 
   return (
-    <Link to={props.href} onClick={clickHandler} className="text-silver flex py-3 px-3 items-center gap-3 relative rounded-md hover:bg-gunmetal-600 cursor-pointer break-all hover:pr-4 group ">
+    <Link reloadDocument to={props.href} onClick={clickHandler} className="text-silver flex py-3 px-3 items-center gap-3 relative rounded-md hover:bg-gunmetal-600 cursor-pointer break-all hover:pr-4 group ">
       {props.icon}
       <div className="flex-1 text-ellipsis overflow-hidden break-all relative">
           {props.title}

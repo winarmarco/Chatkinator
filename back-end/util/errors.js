@@ -29,6 +29,7 @@ class ServerError extends Error {
   }
 }
 
+
 exports.NotFoundError = NotFoundError;
 exports.NotAuthError = NotAuthError;
 exports.ValidationError = ValidationError;

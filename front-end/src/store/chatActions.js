@@ -3,6 +3,7 @@ import {chatActions} from "./chat-slice";
 import {uiActions} from "./ui-slice";
 import {v4 as uuid} from "uuid";
 import {chatsActions} from "./chats-slice";
+import { toast } from "react-hot-toast";
 
 export const fetchResponseAction = (prompt, token, chatId) => {
   return async (dispatch) => {
@@ -19,6 +20,7 @@ export const fetchResponseAction = (prompt, token, chatId) => {
 
     try {
       const response = await fetchResponse(prompt, token, chatId);
+
       const botResponse = response["response"];
 
       dispatch(
@@ -42,7 +44,8 @@ export const fetchResponseAction = (prompt, token, chatId) => {
         }))
       }
     } catch (errors) {
-      console.log("Something went wrong please try again later!");
+      // toast.error(errors.message);
+      toast.error("Something went wrong! Please try again later.")
     }
     dispatch(uiActions.toggleFetch());
   };

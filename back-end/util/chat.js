@@ -25,10 +25,11 @@ const fetchResponse = async (prompt) => {
       options
     );
     const data = response.data;
-
+    
+    
     return data.choices[0].text;
   } catch (error) {
-    return new ServerError("Cannot get bot response");
+    throw new ServerError("Cannot get bot response");
   }
 };
 

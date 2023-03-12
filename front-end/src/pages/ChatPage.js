@@ -1,58 +1,68 @@
 import Sidebar from "../components/Sidebar";
 import Chatbox from "../components/Chatbox";
 import ChatRoom from "../components/ChatRoom";
+import LoadingPage from "../pages/LoadingPage";
 import {useEffect} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {chatActions} from "../store/chat-slice";
 import {chatsActions} from "../store/chats-slice";
-import errorHandler from "../util/errorHandlers";
+import {toast} from "react-hot-toast";
+import {useState} from "react";
 
 const ChatPage = () => {
   const sidebarWidth = "18rem";
   const params = useParams();
   const token = useSelector((state) => state.auth.token);
   const chats = useSelector((state) => state.chats.chats);
+  const [isFetching, setIsFetching] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchChat = async (chatId, token) => {
-      const serverURL = process.env.REACT_APP_API_URL;
+      try {
+        const serverURL = process.env.REACT_APP_API_URL;
 
-      const options = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-          Authorization: `Bearer ${token}`,
-        },
-      };
+        const options = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            Authorization: `Bearer ${token}`,
+          },
+        };
 
-      const response = await fetch(
-        `${serverURL}/chat/${chatId || ""}`,
-        options
-      );
+        const response = await fetch(
+          `${serverURL}/chat/${chatId || ""}`,
+          options
+        );
+        const data = await response.json();
 
-      if (!response.ok) {
-        return errorHandler(response, navigate);
+        if (!response.ok) {
+          throw new Error(data.message);
+        }
+
+        if (chatId) {
+          const chatData = data["messages"];
+          dispatch(chatActions.setChat({chat: chatData}));
+          dispatch(chatsActions.select({chatId: chatId}));
+        } else {
+          const chats = data["chats"];
+          dispatch(chatsActions.setChats({chats: chats}));
+        }
+      } catch (err) {
+        toast.error(err.message);
+        navigate("/chat");
       }
-
-      const data = await response.json();
-
-      if (chatId) {
-        const chatData = data["messages"];
-        dispatch(chatActions.setChat({chat: chatData}));
-        dispatch(chatsActions.select({chatId: chatId}));
-      } else {
-        const chats = data["chats"];
-        dispatch(chatsActions.setChats({chats: chats}));
-      }
+      setIsFetching(false);
     };
 
     dispatch(chatActions.clearChat());
     const chatId = params.chatId;
     fetchChat(chatId, token);
   }, [dispatch, params, token, navigate]);
+
+  if (isFetching) return <LoadingPage />
 
   return (
     <div className="flex flex-row h-screen">
