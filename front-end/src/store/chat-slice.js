@@ -12,7 +12,7 @@ const chatSlice = createSlice({
         },
         setChat(state, actions) {
             return actions.payload.chat;
-        } 
+        }
     },
 });
 

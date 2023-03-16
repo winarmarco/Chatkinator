@@ -3,12 +3,17 @@ import { createSlice } from "@reduxjs/toolkit";
 const uiSlice = createSlice({
     name: "ui",
     initialState: {
-        isFetching: false,
+        chatBox: {isFetching: false,},
+        sidebarLink: {isFetching: false,}
     },
     reducers: {
-        toggleFetch(state) {
-            state.isFetching = !state.isFetching;
+        toggleChatBoxFetch(state) {
+            state.chatBox.isFetching = !state.chatBox.isFetching;
         },
+
+        toggleSidebarLinkFetch(state) {
+            state.sidebarLink.isFetching = !state.sidebarLink.isFetching;
+        }
     },
 });
 

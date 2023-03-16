@@ -3,7 +3,12 @@ const User = require("../model/UserSchema");
 const Chat = require("../model/ChatSchema");
 const router = express.Router();
 const {fetchResponse, getTitle} = require("../util/chat");
-const {NotFoundError, NotAuthError, ValidationError} = require("../util/errors");
+const {
+  NotFoundError,
+  NotAuthError,
+  ValidationError,
+  ServerError,
+} = require("../util/errors");
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res, next) => {
@@ -30,7 +35,12 @@ router.post("/", async (req, res, next) => {
   const prompt = req.body.prompt;
 
   if (!prompt) {
-    return next(new ValidationError({message:"`prompt` field is required", requiredField: ["prompt"]}));
+    return next(
+      new ValidationError({
+        message: "`prompt` field is required",
+        requiredField: ["prompt"],
+      })
+    );
   }
 
   try {
@@ -75,7 +85,6 @@ router.get("/:chatId", async (req, res, next) => {
   const userId = req.token.userID;
   const chatId = req.params.chatId;
 
-
   try {
     const user = await User.findOne({_id: userId}).populate("chats");
 
@@ -97,23 +106,34 @@ router.get("/:chatId", async (req, res, next) => {
 
 router.post("/:chatId", async (req, res, next) => {
   const chatId = req.params.chatId;
+  const userId = req.token.userID;
   const prompt = req.body.prompt;
 
   if (!prompt) {
-    return next(new ValidationError({message:"`prompt` field is required", requiredField: ["prompt"]}));
+    return next(
+      new ValidationError({
+        message: "`prompt` field is required",
+        requiredField: ["prompt"],
+      })
+    );
   }
 
   try {
     const response = await fetchResponse(prompt);
-    
+
     const userPrompt = {
       message: prompt,
       sentBy: "user",
     };
+
     const botResponse = {
       message: response,
       sentBy: "bot",
     };
+
+    const user = await User.findOne({_id: userId, chats: chatId});
+
+    if (!user) throw new NotAuthError("Not Authenticated");
 
     const updatedChat = await Chat.findOneAndUpdate(
       {_id: chatId},
@@ -121,45 +141,65 @@ router.post("/:chatId", async (req, res, next) => {
       {new: true}
     );
 
+    if (!updatedChat) throw new ServerError("Cannot update chat!");
+
     const messages = updatedChat.messages;
 
     res.status(201).json({
       response: messages[messages.length - 1],
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });
 
 router.delete("/:chatId", async (req, res, next) => {
   const chatId = req.params.chatId;
-  try {
-    await Chat.deleteOne({_id: chatId});
+  const userId = req.token.userID;
 
-    res.status(201).json({message: "Successfully deleted chat"});
-  } catch (err) {
-    next(err);
+  try {
+    const user = await User.findOne({_id: userId, chats: chatId});
+
+    if (!user) throw new NotAuthError("Not Authenticated");
+
+
+    const deletedChat = await Chat.deleteOne({_id: chatId});
+
+    if (!deletedChat) throw new ServerError("Cannot delete chat");
+  
+
+    res.status(201).json({status: "Success",chat: deletedChat});
+  } catch (error) {
+    next(error);
   }
 });
 
-router.patch("/:id", async (req, res) => {
-  const chatId = req.params;
+router.patch("/:chatId", async (req, res, next) => {
+  const chatId = req.params.chatId;
+  const userId = req.token.userID;
   const title = req.body.title;
 
-  await Chat.updateOne({_id: chatId}, {title: title}, (updatedChat, error) => {
-    if (error) {
-      throw new Error(error.message);
-    }
+  try {
+    const user = await User.findOne({_id: userId, chats: chatId});
 
-    if (!updatedChat) {
-      throw new Error("No Chat with that Id founded");
-    }
+    if (!user) throw new NotAuthError("Not Authenticated");
 
-    res.status(200).json({
-      message: `Successfully updated chat with id '${chatId}'`,
-      chat: updatedChat,
-    });
-  });
+    const updatedChat = await Chat.findOneAndUpdate(
+      {
+        _id: chatId,
+      },
+      {$set: {title: title}},
+      {new: true}
+    );
+
+    if (!updatedChat) throw new ServerError("Cannot update chat!");
+
+    return res.status(200).json({status: "Success", chat: updatedChat});
+
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;

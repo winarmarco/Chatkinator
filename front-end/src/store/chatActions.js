@@ -1,4 +1,4 @@
-import {fetchResponse} from "../util/chat";
+import {fetchBotResponse, updateTitle} from "../util/chat";
 import {chatActions} from "./chat-slice";
 import {uiActions} from "./ui-slice";
 import {v4 as uuid} from "uuid";
@@ -9,7 +9,7 @@ export const fetchResponseAction = (prompt, token, chatId) => {
   return async (dispatch) => {
     const userMessageId = uuid();
 
-    dispatch(uiActions.toggleFetch());
+    dispatch(uiActions.toggleChatBoxFetch());
     dispatch(
       chatActions.pushChat({
         _id: userMessageId,
@@ -19,7 +19,7 @@ export const fetchResponseAction = (prompt, token, chatId) => {
     );
 
     try {
-      const response = await fetchResponse(prompt, token, chatId);
+      const response = await fetchBotResponse(prompt, token, chatId);
 
       const botResponse = response["response"];
 
@@ -47,6 +47,26 @@ export const fetchResponseAction = (prompt, token, chatId) => {
       // toast.error(errors.message);
       toast.error("Something went wrong! Please try again later.")
     }
-    dispatch(uiActions.toggleFetch());
+    dispatch(uiActions.toggleChatBoxFetch());
   };
 };
+
+
+export const updateChatTitleAction = (title, token, chatId) => {
+  return async (dispatch) => {
+    
+    dispatch(chatsActions.updateChatTitle({
+      title: title,
+    }))
+
+    dispatch(uiActions.toggleSidebarLinkFetch());
+    
+    try {
+      const response = await updateTitle(title, token, chatId);
+      return response;
+    } catch (error) {
+      toast.error("Something went wrong! Please try again later.")
+    }
+    dispatch(uiActions.toggleSidebarLinkFetch());
+  }
+}

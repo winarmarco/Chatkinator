@@ -54,7 +54,7 @@ app.use((error, req, res, next) => {
   console.log(modelName)
 
   if (modelName === "User") {
-    res.status(401).json({message: "Unauthorized user"});
+    return res.status(401).json({message: "Unauthorized user"});
   }
 
   if ((error.name = "ValidationError")) {

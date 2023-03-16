@@ -26,6 +26,16 @@ const chatsSlice = createSlice({
         setChats(state, actions) {
           state.chats = actions.payload.chats;
         },
+        updateChatTitle(state, actions) {
+          const selectedChatId = state.selectedChat._id;
+          const selectedChatIndex = state.chats.findIndex(chat => {
+            return (chat._id === selectedChatId);
+          });
+
+          const newTitle = actions.payload.title;
+
+          state.chats[selectedChatIndex].title = newTitle;
+        }
     },
 });
 

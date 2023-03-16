@@ -2,7 +2,6 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import Private from "./util/Private";
 import ChatPage from "./pages/ChatPage";
-import Clear from "./pages/Clear";
 
 function ChatPageWithPrivate() {
   return <ChatPage />;
@@ -38,15 +37,6 @@ const router = createBrowserRouter([
         component={<ChatPageWithPrivate />}
       />
     ),
-  },
-  {
-    path: "/clear",
-    element: <Clear />,
-  },
-  {
-    path: '/logout',
-    loader: () => {
-    }
   },
 ]);
 

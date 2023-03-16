@@ -7,7 +7,7 @@ import LoadingText from "./LoadingText";
 
 const Chatbox = () => {
   const dispatch = useDispatch();
-  const isFetching = useSelector((state) => state.ui.isFetching);
+  const isFetching = useSelector((state) => state.ui.chatBox.isFetching);
   const selectedChat = useSelector((state) => state.chats.selectedChat);
   const chatId = selectedChat && selectedChat._id;
   const token = useSelector((state) => state.auth.token);
@@ -42,7 +42,7 @@ const Chatbox = () => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    dispatch(fetchResponseAction('', token, chatId));
+    dispatch(fetchResponseAction(prompt, token, chatId));
   };
 
   const FormContent = (
