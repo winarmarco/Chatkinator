@@ -7,8 +7,10 @@ const fetchResponse = async (prompt) => {
   const body = {
     model: "text-davinci-003",
     prompt: prompt,
-    temperature: 1,
+    temperature: 0,
     max_tokens: 2048,
+    frequency_penalty: 0.5,
+    presence_penalty: 0,
   };
 
   const options = {
@@ -25,9 +27,8 @@ const fetchResponse = async (prompt) => {
       options
     );
     const data = response.data;
-    
-    
-    return data.choices[0].text;
+  
+    return data.choices[0].text.trim();
   } catch (error) {
     throw new ServerError("Cannot get bot response");
   }

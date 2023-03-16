@@ -58,3 +58,13 @@ export const updateTitle = async (title, token, chatId) => {
     throw new Error(error);
   }
 }
+
+export const deleteChat = async (token, chatId) => {
+  try {
+    const data = await fetchResponse({}, token, chatId, "DELETE");
+
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
+}

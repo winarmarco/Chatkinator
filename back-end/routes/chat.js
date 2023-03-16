@@ -149,7 +149,6 @@ router.post("/:chatId", async (req, res, next) => {
       response: messages[messages.length - 1],
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
@@ -163,13 +162,11 @@ router.delete("/:chatId", async (req, res, next) => {
 
     if (!user) throw new NotAuthError("Not Authenticated");
 
-
     const deletedChat = await Chat.deleteOne({_id: chatId});
 
     if (!deletedChat) throw new ServerError("Cannot delete chat");
   
-
-    res.status(201).json({status: "Success",chat: deletedChat});
+    return setTimeout(() => res.status(201).json({status: "Success",chat: deletedChat}), 5000);
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,4 @@
-import {fetchBotResponse, updateTitle} from "../util/chat";
+import {deleteChat, fetchBotResponse, updateTitle} from "../util/chat";
 import {chatActions} from "./chat-slice";
 import {uiActions} from "./ui-slice";
 import {v4 as uuid} from "uuid";
@@ -63,10 +63,32 @@ export const updateChatTitleAction = (title, token, chatId) => {
     
     try {
       const response = await updateTitle(title, token, chatId);
+
+      dispatch(uiActions.toggleSidebarLinkFetch());
       return response;
     } catch (error) {
+      dispatch(uiActions.toggleSidebarLinkFetch());
       toast.error("Something went wrong! Please try again later.")
     }
+  }
+}
+
+export const deleteChatAction = (token, chatId, callback) => {
+  return async (dispatch) => {
     dispatch(uiActions.toggleSidebarLinkFetch());
+
+    try {
+      const response = await deleteChat(token, chatId);
+
+      dispatch(chatsActions.deleteChat(chatId));
+      dispatch(chatActions.clearChat());
+      dispatch(uiActions.toggleSidebarLinkFetch());
+
+      callback(response);
+    } catch (error) {
+      dispatch(uiActions.toggleSidebarLinkFetch());
+
+      toast.error("Something went wrong! Please try again later.")
+    }
   }
 }

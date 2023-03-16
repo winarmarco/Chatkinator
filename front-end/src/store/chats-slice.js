@@ -35,6 +35,12 @@ const chatsSlice = createSlice({
           const newTitle = actions.payload.title;
 
           state.chats[selectedChatIndex].title = newTitle;
+        },
+        deleteChat(state, actions) {
+          const toBeDeletedChatId = actions.payload.chatId;
+          state.chats = state.chats.filter(chat => {
+            return (chat._id !== toBeDeletedChatId);
+          });
         }
     },
 });
