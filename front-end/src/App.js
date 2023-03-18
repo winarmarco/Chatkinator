@@ -3,9 +3,6 @@ import AuthPage from "./pages/AuthPage";
 import Private from "./util/Private";
 import ChatPage from "./pages/ChatPage";
 
-function ChatPageWithPrivate() {
-  return <ChatPage />;
-}
 
 const router = createBrowserRouter([
   {
@@ -34,7 +31,7 @@ const router = createBrowserRouter([
     path: "/chat/:chatId",
     element: (
       <Private 
-        component={<ChatPageWithPrivate />}
+        component={<ChatPage />}
       />
     ),
   },

@@ -4,6 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import LoadingPage from "../pages/LoadingPage";
 import {authActions} from "../store/auth-slice";
+import { failedToFetch } from "./error";
 
 const Private = (props) => {
   const token = useSelector((state) => state.auth.token);
@@ -29,8 +30,10 @@ const Private = (props) => {
           throw new Error("something went wrong");
         }
       } catch (err) {
-        if (token) {
-          toast.error("Token expired");
+        if (failedToFetch(err)) {
+          toast.error("Something went wrong!");
+        } else {
+          if (token) toast.error("Token expired");
         }
         dispatch(authActions.logout());
         navigate("/login");

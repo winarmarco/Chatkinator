@@ -6,7 +6,8 @@ import {useState} from "react";
 import {useDispatch} from "react-redux";
 import {authActions} from "../store/auth-slice";
 import {chatActions} from "../store/chat-slice";
-import { toast } from "react-hot-toast";
+import {toast} from "react-hot-toast";
+import {checkJSON} from "../util/error";
 
 const AuthForm = (props) => {
   const mode = props.mode;
@@ -45,7 +46,7 @@ const AuthForm = (props) => {
 
     const pathname = location.pathname;
     const serverURL = process.env.REACT_APP_API_URL;
-    const fetchURL = serverURL + `${pathname}`;
+    const fetchURL = serverURL + `${pathname}/`;
 
     const data = {
       email: formData["email"],
@@ -53,16 +54,17 @@ const AuthForm = (props) => {
       password: formData["password"],
       confirmPassword: formData["confirmPassword"],
     };
-    
+
     try {
       const response = await fetch(fetchURL, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-      const resData = await response.json();      
+      const resData = await response.json();
 
       if (!response.ok) {
         if (resData.cause) {
@@ -80,14 +82,16 @@ const AuthForm = (props) => {
       dispatch(authActions.signJWT({token}));
       dispatch(chatActions.clearChat());
       return navigate("/chat");
-
-      
     } catch (error) {
-      const errorObject = JSON.parse(error.message);
-      if (typeof errorObject === "string") {
-        toast.error(errorObject);
+      if (checkJSON(error.message)) {
+        const errorObject = JSON.parse(error.message);
+        if (typeof errorObject === "string") {
+          toast.error(errorObject);
+        }
+        setError(errorObject);
+      } else {
+        toast.error(error.message);
       }
-      setError(errorObject);
     }
   };
 

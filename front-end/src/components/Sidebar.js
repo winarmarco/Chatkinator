@@ -5,7 +5,7 @@ import {BiMessageDetail} from "react-icons/bi";
 import {FaSignOutAlt} from "react-icons/fa";
 import {CgProfile} from "react-icons/cg";
 import {useNavigate} from "react-router-dom";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {chatActions} from "../store/chat-slice";
 import {chatsActions} from "../store/chats-slice";
 import {authActions} from "../store/auth-slice";
@@ -13,7 +13,16 @@ import SidebarButton from "./SidebarButton";
 
 const Sidebar = (props) => {
   const chats = props.chats;
-  const selectedChat = props.selectedChat
+  const show = useSelector((state) => state.ui.sidebar.show);
+  const selectedChat = props.selectedChat;
+  const sidebarWidth = props.style.width;
+  console.log(sidebarWidth);
+  const position = (show) ? 'left-0' : `-left-[${sidebarWidth}]`;
+  const style = {
+    // left: position,
+    ...props.style,
+  }
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -30,8 +39,8 @@ const Sidebar = (props) => {
 
   return (
     <div
-      className="bg-gunmetal-900 flex flex-col h-full gap-y-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] z-30 px-2 py-4"
-      style={props.style}
+      className={`bg-gunmetal-900 fixed sm:relative flex flex-col h-full gap-y-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] z-30 px-2 py-4 transition-all duration-300 ${position} sm:left-0`}
+      style={style}
     >
       <Button
         onClick={addNewChatHandler}
@@ -44,7 +53,7 @@ const Sidebar = (props) => {
           {chats &&
             chats.map((data) => (
               <SidebarLink
-                selected={(selectedChat) && (selectedChat._id === data._id)}
+                selected={selectedChat && selectedChat._id === data._id}
                 key={data._id}
                 chatId={data._id}
                 href={`/chat/${data._id}`}
