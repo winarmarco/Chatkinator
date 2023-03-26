@@ -32,6 +32,12 @@ app.use(bodyParser.json());
 app.use("/api/", authRouter);
 app.use("/api/chat", checkAuth, chatRouter);
 
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "/frontend/build")));
+app.get("*", (req, res) =>
+  res.sendFile(path.join(__dirname, "/front-end/build/index.html"))
+);
+
 
 // Handle logic error
 app.use((error, req, res, next) => {
