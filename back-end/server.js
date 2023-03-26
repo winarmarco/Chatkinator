@@ -1,12 +1,15 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const {checkAuth} = require("./util/middleware");
 
 const authRouter = require("./routes/authentication");
 const chatRouter = require("./routes/chat");
+
+console.log(process.env)
 
 mongoose.set("strictQuery", true);
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
@@ -77,5 +80,5 @@ app.use((error, req, res, next) => {
 
 
 app.listen(process.env.PORT, () => {
-  console.log("Server listening on port 8080");
+  console.log(`Server listening on port ${process.env.PORT}`);
 });
