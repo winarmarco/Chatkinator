@@ -45,8 +45,7 @@ const AuthForm = (props) => {
     event.preventDefault();
 
     const pathname = location.pathname;
-    const serverURL = process.env.REACT_APP_API_URL;
-    const fetchURL = serverURL + `${pathname}/`;
+    const fetchURL = `/api/${pathname}/`;
 
     const data = {
       email: formData["email"],
@@ -58,7 +57,6 @@ const AuthForm = (props) => {
     try {
       const response = await fetch(fetchURL, {
         method: "POST",
-        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },

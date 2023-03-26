@@ -138,5 +138,3 @@ const SidebarLink = (props) => {
 };
 
 export default SidebarLink;
-
-// { (!isUpdating && !isEditing) ? <AiFillEdit /> : <FiCheck /> }

@@ -26,7 +26,6 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchChat = async (chatId, token) => {
       try {
-        const serverURL = process.env.REACT_APP_API_URL;
 
         const options = {
           method: "GET",
@@ -37,7 +36,7 @@ const ChatPage = () => {
         };
 
         const response = await fetch(
-          `${serverURL}/chat/${chatId || ""}`,
+          `/api/chat/${chatId || ""}`,
           options
         );
         const data = await response.json();

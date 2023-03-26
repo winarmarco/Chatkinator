@@ -1,5 +1,4 @@
 export const fetchResponse = async (body, token, chatId, method) => {
-  const serverURL = process.env.REACT_APP_API_URL;
 
   var formBody = [];
   for (var property in body) {
@@ -19,7 +18,7 @@ export const fetchResponse = async (body, token, chatId, method) => {
   };
 
   try {
-    const fetchUrl = `${serverURL}/chat/${(chatId) || ''}`;
+    const fetchUrl = `/api/chat/${(chatId) || ''}`;
     const response = await fetch(
       fetchUrl,
       options

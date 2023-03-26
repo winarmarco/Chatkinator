@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const axios = require("axios");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -13,12 +12,13 @@ mongoose.set("strictQuery", true);
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
 const app = express();
 
-const corsOptions = {
-  origin: "http://localhost:3000",
-  optionsSuccessStatus: 200,
-};
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   optionsSuccessStatus: 200,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+
 
 app.use(
   bodyParser.urlencoded({
@@ -28,8 +28,9 @@ app.use(
 app.use(bodyParser.json());
 
 
-app.use("/", authRouter);
-app.use("/chat", checkAuth, chatRouter);
+
+app.use("/api/", authRouter);
+app.use("/api/chat", checkAuth, chatRouter);
 
 
 // Handle logic error
@@ -60,7 +61,7 @@ app.use((error, req, res, next) => {
   if ((error.name = "ValidationError")) {
     return res.status(400).json({message: error.message});
   }
-
+0
   if (error.name === "Cast Error") {
     return res.status(400).json({message: "Invalid ID"});
   }

@@ -15,7 +15,6 @@ const Private = (props) => {
 
   useEffect(() => {
     const checkAuth = async (token) => {
-      const serverURL = process.env.REACT_APP_API_URL;
       const options = {
         method: "POST",
         headers: {
@@ -25,7 +24,7 @@ const Private = (props) => {
       };
 
       try {
-        const response = await fetch(`${serverURL}/check-auth`, options);
+        const response = await fetch(`/api/check-auth`, options);
         if (!response.ok) {
           throw new Error("something went wrong");
         }

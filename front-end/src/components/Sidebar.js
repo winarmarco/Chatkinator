@@ -16,10 +16,10 @@ const Sidebar = (props) => {
   const show = useSelector((state) => state.ui.sidebar.show);
   const selectedChat = props.selectedChat;
   const sidebarWidth = props.style.width;
-  console.log(sidebarWidth);
-  const position = (show) ? 'left-0' : `-left-[${sidebarWidth}]`;
+  // console.log(`-left-[${sidebarWidth}]` === "-left-[18rem]");
+  const position = (!show) ? `-left-[${sidebarWidth}]` : "left-0"
+
   const style = {
-    // left: position,
     ...props.style,
   }
 
@@ -39,7 +39,9 @@ const Sidebar = (props) => {
 
   return (
     <div
-      className={`bg-gunmetal-900 fixed sm:relative flex flex-col h-full gap-y-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] z-30 px-2 py-4 transition-all duration-300 ${position} sm:left-0`}
+      className={`bg-gunmetal-900 fixed sm:relative flex flex-col h-full
+                 gap-y-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]
+                z-30 px-2 py-4 transition-all duration-300 ${position} sm:left-0`}
       style={style}
     >
       <Button
