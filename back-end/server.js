@@ -35,7 +35,7 @@ app.use(bodyParser.json());
 app.use("/api/", authRouter);
 app.use("/api/chat", checkAuth, chatRouter);
 
-app.use(express.static(path.join(__dirname, "/frontend/build")));
+app.use(express.static(path.join(__dirname, "../front-end/build")));
 app.get("*", (req, res) =>
   res.sendFile(path.join(__dirname, "../front-end/build/index.html"))
 );
